@@ -6,6 +6,7 @@ from numpy import linalg
 import sys
 
 g = 9.81
+tolerance = .00001
 
 def SVD(A):
 
@@ -25,7 +26,10 @@ def SVD(A):
     eig_vec_v = eig_vec_v[:, sorted_indices]
     #calc sigma
     sigma = np.sqrt(eig_val_v[:min(m,n)])
-
+    #Inverse check
+    if np.any(sigma <= tolerance):
+        print("[ERROR] Inverse does not exist. Singular value = 0")
+        return 0,0,0,0,0
     same_sign = np.sign((A @ eig_vec_v)[0] * (eig_vec_u @ np.diag(eig_val_u))[0])
     eig_vec_v = eig_vec_v * same_sign.reshape(1, -1)
     
@@ -33,12 +37,7 @@ def SVD(A):
     condition_number = sigma[0]/sigma[len(sigma)-1]
     
     #Calculating Inverse 
-       #Inverse check
-    for ii in range(len(sigma)):
-        if sigma[ii] == 0:
-            print( "[ERROR] Inverse of matrix A does not exist.")
-            return 0
-
+  
     A_inv = np.matmul(np.matmul(eig_vec_v, np.diag(pow(sigma, -1))), np.transpose(eig_vec_u))
    
     return eig_vec_u, sigma, eig_vec_v, condition_number, A_inv
@@ -48,8 +47,71 @@ def spring_solver(bc, num_springs, num_masses, spring_const, masses):
 
     # Elongation equations
     # u =  displacements
-    print(num_masses)
-    if bc == 1: #1 fixed ends
+    U = [1]*num_masses
+    if bc == 0: # free free system
+        A = np.zeros((num_springs,num_masses))
+        for i in range(num_springs):
+            # Set the diagonal elements (e1 = u1 - u0, e2 = u2 - u1, e3 = u3 - u2)
+            A[i, i] = 1
+            
+            # Set the off-diagonal elements (e1 = u1 - u0, e2 = u2 - u1, e3 = u3 - u2)
+            A[i, i + 1] = -1
+        print("A = " + str(A))
+        check = np.matmul(A,U)
+        for ii in range(num_springs):
+            if check[ii]!=0:
+                print("Matrix does not have a solution")
+                return 0
+
+        # Spring Const Matrix
+        C = np.diag(spring_const)
+
+        # SVD of K matrix
+        K = np.matmul(np.matmul(np.transpose(A), C),A)
+        print("K = " + str(K))
+        eig_vec_u, sigma, eig_vec_v, condition_number, K_INV=SVD(K)
+        if (K_INV == 0):
+            return 0
+        print("Singular values = " + str(sigma))
+        print("Condition number = " + str(condition_number))
+
+        # l2 norm
+        sum = 0
+        for ii in range (K.shape[0]):
+            for jj in range (K.shape[1]):
+                sum = sum + pow(K[ii][jj],2)
+        l2 = math.sqrt(sum)
+        print("l2 condition number = " + str(l2))
+
+        #f vector 
+        f = np.array(masses)
+        f = f * g
+        
+        # k_inv * f = u 
+        U = np.matmul(K_INV,f)
+        print("++++++++++++")
+        print(K_INV)
+        print(f)
+        print("U = " + str(U))
+
+        # calculate Elongation
+        E = np.matmul(A, U)
+        print("E = " + str(E))
+
+        # calculate W aka internal force 
+        print("C = " + str(C))
+        W = np.matmul(C, E)
+        print("W = " + str(W))
+        
+
+
+        
+
+        # A check
+
+
+
+    elif bc == 1: #1 fixed ends
         U = [0]*num_masses
         E = [0]*num_masses
 
@@ -172,7 +234,7 @@ def main():
     eig_vec_u, sigma, eig_vec_v, condition_number, A_inv = SVD(A)
     print("U = " + str(eig_vec_u))
     print("S = " + str(sigma))
-    print("V = " + str(eig_vec_v))
+    print("V = " + str(np.transpose(eig_vec_v)))
     print("A_INV = " + str(A_inv))
 
     print("---------------- BLACK BOX -------------------")
@@ -187,7 +249,9 @@ def main():
     arguments = sys.argv
     bc = int(arguments[1])
     num_springs = int(arguments[2])
-    if bc == 1:
+    if bc == 0:
+        num_masses = num_springs + 1
+    elif bc == 1:
         num_masses = num_springs
     elif bc == 2: 
         num_masses = num_springs - 1
@@ -201,6 +265,10 @@ def main():
         spring_const.append(int(arguments[ii]))
     for ii in range(3+num_springs, 3+num_springs+num_masses):
         masses.append(int(arguments[ii]))
+
+    if (3+num_springs+num_masses != len(arguments)):
+        print("[ERROR] Number of arguments does not match given the BC and number of springs")
+
     
     spring_solver(bc,num_springs,num_masses,spring_const,masses)
 
