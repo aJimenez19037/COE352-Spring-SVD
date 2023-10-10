@@ -8,10 +8,10 @@ $ git clone https://github.com/aJimenez19037/COE352-Spring-SVD.git
 $ cd COE352_Spring-SVD.git
 $ python3 main.py (BC) (# of springs) [spring constants] [masses] 
 ```
-The first argument BC is where you specify you boundary conditions. The options are: 
-0 - Free free spring system
-1 - Fixed free spring system
-2 - Fixed fixed spring system
+The first argument BC is where you specify your boundary conditions. The options are:   
+0 - Free free spring system  
+1 - Fixed free spring system  
+2 - Fixed fixed spring system  
 
 "#" of springs is where you specify the number of springs your system will have. Depending on your boundary condition, the number of masses will also be calculated. The logic is as follows:
 ```
