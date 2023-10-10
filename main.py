@@ -105,6 +105,65 @@ def spring_solver(bc, num_springs, num_masses, spring_const, masses):
 
         return 0
     elif bc == 2: # 2 fixed ends
+        print("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\")
+        U = [0]*num_masses
+        E = [0]*num_masses
+
+        #Create A matrix
+        A = np.zeros((num_springs, num_masses))
+    
+        A[0, 0] = 1
+        A[0, 1] = 0
+        
+        # Set other e values = u2 - u1 except shifted for their respective u values
+        for i in range(1, num_springs - 1):
+            A[i, i - 1] = -1
+            A[i, i] = 1
+        
+        # Set e4 = -u3
+        A[num_springs - 1, num_springs - 2] = -1    
+
+        print("A = " + str(A))
+
+        # Spring Const Matrix
+        C = np.diag(spring_const)
+
+        # SVD of K matrix
+        K = np.matmul(np.matmul(np.transpose(A), C),A)
+        eig_vec_u, sigma, eig_vec_v, condition_number, K_INV=SVD(K)
+        print("Singular values = " + str(sigma))
+        print("Condition number = " + str(condition_number))
+
+        # l2 norm
+        sum = 0
+        for ii in range (K.shape[0]):
+            for jj in range (K.shape[1]):
+                sum = sum + pow(K[ii][jj],2)
+        l2 = math.sqrt(sum)
+        print("l2 condition number = " + str(l2))
+
+        #f vector 
+        f = np.array(masses)
+        f = f * g
+        
+        # k_inv * f = u 
+        U = np.matmul(K_INV,f)
+        print("++++++++++++")
+        print(K_INV)
+        print(f)
+        print("U = " + str(U))
+
+        # calculate Elongation
+        E = np.matmul(A, U)
+        print("E = " + str(E))
+
+        # calculate W aka internal force 
+        print("C = " + str(C))
+        W = np.matmul(C, E)
+        print("W = " + str(W))
+        
+
+
         return 0
     
 
