@@ -26,3 +26,7 @@ elif bc == 1:
 elif bc == 2: 
     num_masses = num_springs - 1
 ```
+The following two arguments you enter the spring constants and the masses. An example of a spring mass system with a boundary condition of 0 is shown below:
+```
+$ main.py 0 3 4 4 4 5 5 5 5
+```
