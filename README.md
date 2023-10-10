@@ -4,7 +4,7 @@
 
 Open your terminal and clone the repository using the command 
 ```
-$ git clone git@github.com:aJimenez19037/COE352-Spring-SVD.git
+$ git clone https://github.com/aJimenez19037/COE352-Spring-SVD.git
 $ cd COE352_Spring-SVD.git
 $ python3 main.py (BC) (# of springs) [spring constants] [masses] 
 ```
