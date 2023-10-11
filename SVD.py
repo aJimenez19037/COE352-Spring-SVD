@@ -11,17 +11,19 @@ tolerance = .00001
 
 def singular_value_decomposition(A):
 
-    A_T = np.transpose(A)
-    eig_val_A, eig_vec_A = np.linalg.eig(A)
 
-    eig_val_u, eig_vec_u = np.linalg.eig(np.matmul(A,A_T))
+
+    A_T = np.transpose(A)
+    eig_val_A, eig_vec_A = np.linalg.eigh(A)
+
+    eig_val_u, eig_vec_u = np.linalg.eigh(np.matmul(A,A_T))
     _, n = eig_vec_u.shape
     #sort U
     sorted_indices = np.argsort(eig_val_u)[::-1]
     eig_val_u = eig_val_u[sorted_indices]
     eig_vec_u = eig_vec_u[:, sorted_indices]
     #sort V_T
-    eig_val_v, eig_vec_v = np.linalg.eig(np.matmul(A_T,A))
+    eig_val_v, eig_vec_v = np.linalg.eigh(np.matmul(A_T,A))
     _, m = eig_vec_v.shape
     sorted_indices = np.argsort(eig_val_v)[::-1]
     eig_val_v = eig_val_v[sorted_indices]
@@ -38,16 +40,17 @@ def singular_value_decomposition(A):
     #Condition number 
     condition_number = sigma[0]/sigma[len(sigma)-1]
     
-    #Calculating Inverse 
-       #Inverse check
+    #Inverse check
     for ii in range(len(sigma)):
         if sigma[ii] <= tolerance:
             print( "[ERROR] Inverse of matrix A does not exist.")
             return 0,0,0,0,0
 
-    # same_sign = np.sign(((A @ V)[0] * (U @ np.diag(sigma))[0]))
+    #change signs - not working
+    # same_sign = np.sign(((A @ eig_vec_v)[0] * (eig_vec_u @ np.diag(sigma))[0]))
     # eig_vec_v = eig_vec_v * same_sign.reshape(1,-1)
 
+    #Calculating Inverse 
     A_inv = np.matmul(np.matmul(eig_vec_v, np.diag(pow(sigma, -1))), np.transpose(eig_vec_u))
     A_inv = np.round(A_inv, 8)
     return eig_vec_u, sigma, eig_vec_v, condition_number, A_inv

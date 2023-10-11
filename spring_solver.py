@@ -132,25 +132,23 @@ def spring_solver(bc, num_springs, num_masses, spring_const, masses):
 
         return 0
     elif bc == 2: # 2 fixed ends
-        print("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\")
         U = [0]*num_masses
         E = [0]*num_masses
 
         #Create A matrix
         A = np.zeros((num_springs, num_masses))
     
-        A[0, 0] = 1
-        A[0, 1] = 0
-        
-        # Set other e values = u2 - u1 except shifted for their respective u values
-        for i in range(1, num_springs - 1):
-            A[i, i - 1] = -1
-            A[i, i] = 1
-        
-        # Set e4 = -u3
-        A[num_springs - 1, num_springs - 2] = -1    
-
-        print("A = " + str(A))
+        if num_masses == 1:
+            A = np.array([[1], [-1]])
+        else:
+            A[0, 0] = 1
+            A[0, 1] = 0
+            # Set other e values = u2 - u1 except shifted for their respective u values
+            for i in range(1, num_springs - 1):
+                A[i, i - 1] = -1
+                A[i, i] = 1
+                # Set e4 = -u3
+                A[num_springs - 1, num_springs - 2] = -1    
 
         # Spring Const Matrix
         C = np.diag(spring_const)
@@ -199,12 +197,18 @@ def main():
     arguments = sys.argv
     bc = int(arguments[1])
     num_springs = int(arguments[2])
+    if num_springs == 0:
+        print("[ERROR]: Cannot enter 0 springs")
+        return 0
     if bc == 0:
         num_masses = num_springs + 1
     elif bc == 1:
         num_masses = num_springs
     elif bc == 2: 
         num_masses = num_springs - 1
+        if num_springs == 1:
+            print("[ERROR]: BC of 2 requires at least 2 springs")
+            return 0
     else:
         print("[ERROR] Please input a boundary condition of 1 or 2.")
    
