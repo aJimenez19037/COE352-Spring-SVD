@@ -2,8 +2,10 @@ import SVD
 import math
 import numpy as np
 import sys
+import warnings
 from scipy.linalg import svd
 from numpy import linalg
+
 
 def spring_solver(bc, num_springs, num_masses, spring_const, masses):
 
@@ -31,8 +33,9 @@ def spring_solver(bc, num_springs, num_masses, spring_const, masses):
         # SVD of K matrix
         K = np.matmul(np.matmul(np.transpose(A), C),A)
         print("K = " + str(K))
-        eig_vec_u, sigma, eig_vec_v, condition_number, K_INV=SVD.singular_value_decomposition(K)
-        if (K_INV == 0):
+        eig_vec_u, sigma, eig_vec_v, condition_number, K_INV = SVD.singular_value_decomposition(K)
+
+        if (type(K_INV) == int):
             return 0
         print("Singular values = " + str(sigma))
         print("Condition number = " + str(condition_number))
@@ -47,7 +50,7 @@ def spring_solver(bc, num_springs, num_masses, spring_const, masses):
 
         #f vector 
         f = np.array(masses)
-        f = f * g
+        f = f * SVD.g
         
         # k_inv * f = u 
         U = np.matmul(K_INV,f)
@@ -108,7 +111,7 @@ def spring_solver(bc, num_springs, num_masses, spring_const, masses):
 
         #f vector 
         f = np.array(masses)
-        f = f * g
+        f = f * SVD.g
         
         # k_inv * f = u 
         U = np.matmul(K_INV,f)
@@ -168,7 +171,7 @@ def spring_solver(bc, num_springs, num_masses, spring_const, masses):
 
         #f vector 
         f = np.array(masses)
-        f = f * g
+        f = f * SVD.g
         
         # k_inv * f = u 
         U = np.matmul(K_INV,f)
