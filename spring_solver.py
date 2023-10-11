@@ -174,8 +174,8 @@ def spring_solver(bc, num_springs, num_masses, spring_const, masses):
         # k_inv * f = u 
         U = np.matmul(K_INV,f)
         print("++++++++++++")
-        print(K_INV)
-        print(f)
+        print("K_INV = " + str(K_INV))
+        print("f = " + str(f))
         print("U = " + str(U))
 
         # calculate Elongation
@@ -183,7 +183,6 @@ def spring_solver(bc, num_springs, num_masses, spring_const, masses):
         print("E = " + str(E))
 
         # calculate W aka internal force 
-        print("C = " + str(C))
         W = np.matmul(C, E)
         print("W = " + str(W))
         
